@@ -33,10 +33,10 @@ public class IlluminaQCGo {
 
     public IlluminaQCGo(String parameterFileS) {
         this.initializeParameter(parameterFileS);
-        //this.mkSubDirectories();
-        //this.sampleFastq();
-        //this.fastQC();
-        //this.alignBWA();
+        this.mkSubDirectories();
+        this.sampleFastq();
+        this.fastQC();
+        this.alignBWA();
         this.mkSummary();
     }
 
