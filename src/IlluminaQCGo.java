@@ -25,19 +25,19 @@ public class IlluminaQCGo {
     String fastqPath = null;
     String workingPath = null;
     boolean ifCoverage = false;
-    String[] subDir = {"sampledFastq", "fastQC", "alignment", "insertSize"};
+    String[] subDir = {"sampledFastq", "fastQC", "alignment", "insertSize", "sampledFasta"};
 
     String[][] result = null;
     int fastQCColNum = 0;
     double genomeSize = 0;
 
-    public IlluminaQCGo(String parameterFileS) {
+    public IlluminaQCGo (String parameterFileS) {
         this.initializeParameter(parameterFileS);
         this.mkSubDirectories();
         this.sampleFastq();
-        this.fastQC();
-        this.alignBWA();
-        this.mkSummary();
+        //this.fastQC();
+        //this.alignBWA();
+        //this.mkSummary();
     }
 
     private void mkSummary () {
@@ -309,8 +309,10 @@ public class IlluminaQCGo {
     private void sampleFastq () {
         String infileDirS = fastqPath;
         String outputDirS = new File (workingPath, subDir[0]).getAbsolutePath();
+        String outputFastaDirS = new File (workingPath, subDir[4]).getAbsolutePath();
         int readNum = 100000;
         int startPoint = 100000;
+        int fastaNum = 1000;
         File[] fs = new File(infileDirS).listFiles();
         HashSet<String> nameSet = new HashSet();
         for (int i = 0; i < fs.length; i++) {
@@ -322,11 +324,13 @@ public class IlluminaQCGo {
             String infile2 = new File (infileDirS, name+"_2.fq.gz").getAbsolutePath();
             String outfile1 = new File (outputDirS, name+"_1.fq.gz").getAbsolutePath();
             String outfile2 = new File (outputDirS, name+"_2.fq.gz").getAbsolutePath();
+            String outfileFasta = new File (outputFastaDirS, name+"_1.fa").getAbsolutePath();
             try {
                 BufferedReader br1 = IOUtils.getTextGzipReader(infile1);
                 BufferedReader br2 = IOUtils.getTextGzipReader(infile2);
                 BufferedWriter bw1 = IOUtils.getTextGzipWriter(outfile1);
                 BufferedWriter bw2 = IOUtils.getTextGzipWriter(outfile2);
+                BufferedWriter bwf = IOUtils.getTextGzipWriter(outfileFasta);
                 String temp = null;
                 int cnt = 0;
                 while ((temp = br1.readLine()) != null) {
@@ -339,11 +343,19 @@ public class IlluminaQCGo {
                         bw1.write(temp+"\n");bw1.write(br1.readLine()+"\n");bw1.write(br1.readLine()+"\n");bw1.write(br1.readLine()+"\n");
                         bw2.write(br2.readLine()+"\n");bw2.write(br2.readLine()+"\n");bw2.write(br2.readLine()+"\n");bw2.write(br2.readLine()+"\n");
                         for (int i = 0; i < readNum-1; i++) {
-                            bw1.write(br1.readLine()+"\n");bw1.write(br1.readLine()+"\n");bw1.write(br1.readLine()+"\n");bw1.write(br1.readLine()+"\n");
+                            bw1.write(br1.readLine()+"\n");
+                            temp = br1.readLine();bw1.write(temp+"\n");
+                            bw1.write(br1.readLine()+"\n");bw1.write(br1.readLine()+"\n");
                             bw2.write(br2.readLine()+"\n");bw2.write(br2.readLine()+"\n");bw2.write(br2.readLine()+"\n");bw2.write(br2.readLine()+"\n");
+                            if (i > fastaNum) continue;
+                            bwf.write(">"+String.valueOf(i));
+                            bwf.newLine();
+                            bwf.write(temp);
+                            bwf.newLine();
                         }
                         bw1.flush();bw1.close();
                         bw2.flush();bw2.close();
+                        bwf.flush();bwf.close();
                         br1.close();
                         br2.close();
                         break;
