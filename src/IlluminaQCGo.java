@@ -35,9 +35,9 @@ public class IlluminaQCGo {
         this.initializeParameter(parameterFileS);
         this.mkSubDirectories();
         this.sampleFastq();
-        //this.fastQC();
-        //this.alignBWA();
-        //this.mkSummary();
+        this.fastQC();
+        this.alignBWA();
+        this.mkSummary();
     }
 
     private void mkSummary () {
